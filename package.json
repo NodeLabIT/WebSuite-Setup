@@ -2,7 +2,7 @@
   "name": "websuite-setup",
   "version": "1.0.0",
   "description": "Setup-Programm für den WebSuite-Core",
-  "main": "index.js",
+  "main": "setup.js",
   "directories": {
     "lib": "lib"
   },
@@ -18,5 +18,11 @@
   "bugs": {
     "url": "https://github.com/NodeLabIT/WebSuite-Setup/issues"
   },
-  "homepage": "https://github.com/NodeLabIT/WebSuite-Setup#readme"
+  "homepage": "https://github.com/NodeLabIT/WebSuite-Setup#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "express-handlebars": "^3.0.0",
+    "mysql": "^2.15.0",
+    "nodemailer": "^4.4.1"
+  }
 }
