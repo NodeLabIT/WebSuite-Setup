@@ -70,13 +70,20 @@ main {
     margin: 10px 0;
   }
 
-  .center {
-    background: @main-blue;
-    margin: 26px auto 0 auto;
-    padding: 14px 20px;
-    color: #fff;
-    display: inline-block;
-    text-decoration: none;
-    float: right;
+  a, input[type="submit"] {
+    outline: 0;
+    border: 0;
+    &.primary {
+      background: @main-blue;
+      margin: 26px auto 0 auto;
+      padding: 14px 20px;
+      color: #fff;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    &.right {
+      float: right;
+    }
   }
 }

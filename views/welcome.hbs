@@ -5,6 +5,8 @@
 <text>
     Lizenzvereinbarungen kommen hier rein
 </text>
-<input type="checkbox"> Ich akzeptiere die oben stehenden Lizenzvereinbarungen
-<br/>
-<a href="/welcome" class="center">Nächster Schritt</a>
+<form action="/welcome" method="post">
+    <input type="checkbox" id="accept"> <label for="accept">Ich akzeptiere die oben stehenden Lizenzvereinbarungen</label>
+    <br/>
+    <input type="submit" class="primary right" value="Nächster Schritt" />
+</form>

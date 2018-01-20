@@ -32,6 +32,10 @@ app.get('/welcome', (req, res) => {
     res.render('welcome');
 });
 
+app.post('/welcome', (req, res) => {
+    res.redirect('welcome');
+});
+
 app.get('/download-core', (req, res) => {
     res.render('download-core');
 });
