@@ -6,6 +6,7 @@ if(process.versions.node.split(".")[0] < 4) {
 }
 
 const express = require('express');
+const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
@@ -16,6 +17,9 @@ let app = express();
 
 app.engine('.hbs', exphbs({ defaultLayout: 'index', extname: '.hbs' }));
 app.set('view engine', '.hbs');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use('/', express.static('public'));
 
@@ -33,7 +37,9 @@ app.get('/welcome', (req, res) => {
 });
 
 app.post('/welcome', (req, res) => {
-    res.redirect('welcome');
+    if(req.body.accept === true) {
+        res.end("true");
+    }
 });
 
 app.get('/download-core', (req, res) => {

@@ -5,8 +5,21 @@
 <text>
     Lizenzvereinbarungen kommen hier rein
 </text>
-<form action="/welcome" method="post">
-    <input type="checkbox" id="accept"> <label for="accept">Ich akzeptiere die oben stehenden Lizenzvereinbarungen</label>
-    <br/>
-    <input type="submit" class="primary right" value="Nächster Schritt" />
-</form>
+<input type="checkbox" id="accept"> <label for="accept">Ich akzeptiere die oben stehenden Lizenzvereinbarungen</label>
+<br/>
+<a onclick="submit()" class="primary right">Nächster Schritt</a>
+
+<script>
+    function submit() {
+        $.ajax({
+            type: "POST",
+            url: '/welcome',
+            data: {
+                accept: $("#accept").is(":checked")
+            },
+            success: function() {
+                window.location.href = "/download-core";
+            }
+        });
+    }
+</script>
