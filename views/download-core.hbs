@@ -1,1 +1,124 @@
-Download Core
+<div class="balloon error" id="error">
+    <div class="title">Es ist ein Fehler aufgetreten</div>
+    <p>Bitte versuche, die Seite neu zu laden und den Schritt erneut abzuschließen. Eine genaue Fehlerbeschreibung findest du im Log.</p>
+</div>
+
+<div>
+    <h2>
+        Download WebSuite-Core
+    </h2>
+    <p>
+        Der WebSuite-Core ist die Basis des gesamten System. In diesem Schritt wird dieser heruntergeladen und in den Ordner unter <text>{{dir}}</text> entpackt. Stelle sicher, dass das System dort hin entpackt werden kann.
+    </p>
+    <hr/>
+    <p>
+        Dieser Vorgang kann unter Umständen einige Zeit in Anspruch nehmen.<br/>
+        <span id="status">Klicke auf "Core installieren und zum nächsten Schritt" um den Vorgang zu starten.</span>
+    </p>
+    <a onclick="submit()" class="primary right">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="6" stroke-miterlimit="10"/>
+            </svg>
+        </div>
+        Core installieren und zum nächsten Schritt
+    </a>
+</div>
+
+<script>
+    var timeout = null;
+    var interval = null;
+
+    var installing = false;
+
+    var errors = 0;
+
+    function submit() {
+        if(installing) {
+            return;
+        }
+        installing = true;
+
+        $(".balloon").hide();
+        if(timeout !== null) {
+            clearTimeout(timeout);
+            timeout = null;
+        }
+
+        $(".loader").css("display", "inline-block");
+        $("#status").text("Aktueller Fortschritt: 0%");
+        $.ajax({
+            type: "POST",
+            url: '/download-core',
+            error: function() {
+                $(".loader").hide();
+                $("#error").show();
+                $("#status").text("Die Installation konnte aufgrund eines Fehlers nicht beendet werden.");
+                timeout = setTimeout(function() {
+                    $("#error").hide();
+                    clearTimeout(timeout);
+                    timeout = null;
+                }, 6500);
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                if(data.status && data.status === "started") {
+                    interval = setInterval(() => {
+                        requestStatus();
+                    }, 750);
+                } else {
+                    $(".loader").hide();
+                    $("#error").show();
+                    $("#status").text("Die Installation konnte aufgrund eines Fehlers nicht beendet werden.");
+                }
+            },
+            timeout: 10000
+        });
+    }
+
+    function requestStatus() {
+        $.ajax({
+            type: "POST",
+            url: '/download-core-status',
+            error: function() {
+                $(".loader").hide();
+                $("#status").text("Beim Abrufen des Fortschritts ist ein Fehler aufgetreten.");
+
+                errors ++;
+
+                if(errors === 3) {
+                    $("#error").show();
+                    timeout = setTimeout(function() {
+                        $("#error").hide();
+                        clearTimeout(timeout);
+                        timeout = null;
+                    }, 6500);
+                    clearInterval(interval);
+                }
+            },
+            success: function(data) {
+                errors = 0;
+                $(".balloon").hide();
+                if(timeout !== null) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+
+                data = JSON.parse(data);
+                if(data.status) {
+                    if(data.status === "error") {
+                        $("#error").show();
+                        $("#status").text("Die Installation konnte aufgrund eines Fehlers nicht beendet werden.");
+                        return;
+                    }
+                    $("#status").text("Aktueller Fortschritt: " + data.status + "%");
+                    if(parseInt(data.status) === 100) {
+                        clearInterval(interval);
+                        window.location.href = "/setup-socket";
+                    }
+                }
+            },
+            timeout: 1000
+        });
+    }
+</script>

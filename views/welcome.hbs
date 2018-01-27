@@ -1,25 +1,80 @@
-<h2>Vielen Dank, dass du dich für die WebSuite entschieden hast!</h2>
-<p>Der nachfolgende Installations-Assistent hilft dir bei der Installation und ersten Einrichtung des WebSuite-Core.</p>
-<hr/>
-<p>Um mit der Installation fortzuführen, akzeptiere bitte die folgenden Lizenzvereinbarungen:</p>
-<text>
-    Lizenzvereinbarungen kommen hier rein
-</text>
-<input type="checkbox" id="accept"> <label for="accept">Ich akzeptiere die oben stehenden Lizenzvereinbarungen</label>
-<br/>
-<a onclick="submit()" class="primary right">Nächster Schritt</a>
+<div class="balloon error" id="error">
+    <div class="title">Es ist ein Fehler aufgetreten</div>
+    <p>Bitte versuche, die Seite neu zu laden und den Schritt erneut abzuschließen.</p>
+</div>
+<div class="balloon error" id="notAccepted">
+    <div class="title">Lizenzvereinbarungen nicht akzeptiert</div>
+    <p>Du musst die Lizenzvereinbarungen akzeptieren, um mit dem nächsten Schritt fortfahren zu können.</p>
+</div>
+
+<div>
+    <h2>
+        Vielen Dank, dass du dich für die WebSuite entschieden hast!
+    </h2>
+    <p>
+        Der nachfolgende Installations-Assistent hilft dir bei der Installation und ersten Einrichtung des WebSuite-Core.
+    </p>
+    <hr/>
+    <p>
+        Um mit der Installation zu beginnen, akzeptiere bitte die folgenden Lizenzvereinbarungen:
+    </p>
+    <text class="full-width">
+        Copyright (c) 2017 - 2018 nodelab-it.de<br/><br/>
+        Hiermit wird unentgeltlich jeder Person, die eine Kopie der Software und der zugehörigen Dokumentationen (die "Software") erhält, die Erlaubnis erteilt, sie uneingeschränkt zu nutzen, inklusive und ohne Ausnahme mit dem Recht, sie zu verwenden, zu kopieren, zu verändern, zusammenzufügen, zu veröffentlichen, zu verbreiten, zu unterlizenzieren und/oder zu verkaufen, und Personen, denen diese Software überlassen wird, diese Rechte zu verschaffen, unter den folgenden Bedingungen:
+        <br/><br/>
+        Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen Kopien oder Teilkopien der Software beizulegen.
+        <br/><br/>
+        DIE SOFTWARE WIRD OHNE JEDE AUSDRÜCKLICHE ODER IMPLIZIERTE GARANTIE BEREITGESTELLT, EINSCHLIEßLICH DER GARANTIE ZUR BENUTZUNG FÜR DEN VORGESEHENEN ODER EINEM BESTIMMTEN ZWECK SOWIE JEGLICHER RECHTSVERLETZUNG, JEDOCH NICHT DARAUF BESCHRÄNKT. IN KEINEM FALL SIND DIE AUTOREN ODER COPYRIGHTINHABER FÜR JEGLICHEN SCHADEN ODER SONSTIGE ANSPRÜCHE HAFTBAR ZU MACHEN, OB INFOLGE DER ERFÜLLUNG EINES VERTRAGES, EINES DELIKTES ODER ANDERS IM ZUSAMMENHANG MIT DER SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.
+    </text>
+    <input type="checkbox" id="accept">
+    <label for="accept">Ich akzeptiere die oben stehenden Lizenzvereinbarungen</label>
+    <br/>
+    <a onclick="submit()" class="primary right">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="6" stroke-miterlimit="10"/>
+            </svg>
+        </div>
+        Nächster Schritt
+    </a>
+</div>
 
 <script>
+    var timeout = null;
     function submit() {
+        $(".balloon").hide();
+        if(timeout !== null) {
+            clearTimeout(timeout);
+            timeout = null;
+        }
+
+        $(".loader").css("display", "inline-block");
         $.ajax({
             type: "POST",
             url: '/welcome',
             data: {
                 accept: $("#accept").is(":checked")
             },
-            success: function() {
-                window.location.href = "/download-core";
-            }
+            error: function() {
+                $(".loader").hide();
+                $("#error").show();
+                timeout = setTimeout(function() {
+                    $("#error").hide();
+                }, 6500);
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                if(data.accepted === true) {
+                    window.location.href = "/download-core";
+                } else {
+                    $(".loader").hide();
+                    $("#notAccepted").show();
+                    timeout = setTimeout(function() {
+                        $("#notAccepted").hide();
+                    }, 6500);
+                }
+            },
+            timeout: 10000
         });
     }
 </script>

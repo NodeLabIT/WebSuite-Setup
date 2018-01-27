@@ -14,7 +14,9 @@
         <header>
             <div>
                 <span class="title">NodeLab WebSuite</span>
-                <span class="subtitle">Installation - Schritt 1 von 7</span>
+                {{#if step}}
+                    <span class="subtitle">Installation - Schritt {{step}} von 6</span>
+                {{/if}}
             </div>
         </header>
         <main>
