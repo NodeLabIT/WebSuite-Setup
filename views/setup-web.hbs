@@ -1,0 +1,78 @@
+<div class="balloon error" id="error">
+    <div class="title">Es ist ein Fehler aufgetreten</div>
+    <p>Bitte versuche, die Seite neu zu laden und den Schritt erneut abzuschließen.</p>
+</div>
+<div class="balloon error" id="notSaved">
+    <div class="title">Daten nicht gespeichert</div>
+    <p>Beim Speichern deiner Angaben ist ein Fehler aufgetreten. Genauere Informationen dazu findest du im Log.</p>
+</div>
+
+<div>
+    <h2>
+        Web-Konfiguration
+    </h2>
+    <hr/>
+    <p>Bitte trage hier ein, auf welchem Port der Web-Server erreichbar sein soll. Der Webserver wird benötigt um alle benötigten Daten bereitzustellen.</p>
+    <input type="number" id="webserverPort" placeholder="Port des Web-Server" tabindex="1" value="8080" min="1025" max="49152">
+    <br/><br/><br/>
+    <p>Bitte trage hier deinen Secret Key für Google's reCaptcha ein. Diesen erhälst du hier: <a href="https://www.google.com/recaptcha/admin">Google reCaptcha</a></p>
+    <input type="text" id="secretKey" placeholder="Secret Key für reCaptcha" tabindex="2">
+    <br/><br/><br/>
+    <p>Bitte trage hier ein, auf welchem Port der socket.io-Server erreichbar sein soll. socket.io wird benötigt um Inhalte der Seite zu übermitteln.</p>
+    <input type="number" id="socketPort" placeholder="Port des socket.io-Server" tabindex="3" value="8081" min="1025" max="49152">
+    <br/><br/><br/>
+    <p>Bitte trage hier ein, unter welcher Adresse der socket.io-Server erreichbar sein soll</p>
+    <input type="text" id="socketAddress" placeholder="Protokoll und Domain/IP:Port des socket.io-Servers" tabindex="4">
+    <br/>
+    <a onclick="submit()" class="primary right">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="6" stroke-miterlimit="10"/>
+            </svg>
+        </div>
+        Nächster Schritt
+    </a>
+</div>
+
+<script>
+    var timeout = null;
+    function submit() {
+        $(".balloon").hide();
+        if(timeout !== null) {
+            clearTimeout(timeout);
+            timeout = null;
+        }
+
+        $(".loader").css("display", "inline-block");
+        $.ajax({
+            type: "POST",
+            url: '/setup-web',
+            data: {
+                socketPort: $("#socketPort").val(),
+                webPort: $("#webserverPort").val(),
+                secretKey: $("#secretKey").val(),
+                socketAddress: $("#socketAddress").val()
+            },
+            error: function() {
+                $(".loader").hide();
+                $("#error").show();
+                timeout = setTimeout(function() {
+                    $("#error").hide();
+                }, 6500);
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                if(data.saved === true) {
+                    window.location.href = "/setup-sql";
+                } else {
+                    $(".loader").hide();
+                    $("#notSaved").show();
+                    timeout = setTimeout(function() {
+                        $("#notSaved").hide();
+                    }, 6500);
+                }
+            },
+            timeout: 10000
+        });
+    }
+</script>

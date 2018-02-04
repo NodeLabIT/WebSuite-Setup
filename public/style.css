@@ -68,6 +68,10 @@ main text:not(.full-width) {
   padding: 4px;
   line-height: 30px;
 }
+main a {
+  color: #1976D2;
+  text-decoration: none;
+}
 main a,
 main input[type="submit"] {
   outline: 0;
@@ -86,6 +90,17 @@ main input[type="submit"].primary {
 main a.right,
 main input[type="submit"].right {
   float: right;
+}
+main input[type="text"],
+main input[type="password"],
+main input[type="number"] {
+  width: 100%;
+  max-width: 800px;
+  background: none;
+  padding: 10px;
+  outline: 0;
+  border: 0;
+  border-bottom: 1px solid #1976D2;
 }
 main .balloon {
   display: none;

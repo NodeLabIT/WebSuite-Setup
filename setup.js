@@ -16,12 +16,12 @@ const targz = require('targz');
 const path = require('path');
 const fs = require('fs');
 
-let step = 1;
+let step = 3;
 
 const steps = {
     1: "welcome",
     2: "download-core",
-    3: "setup-socket",
+    3: "setup-web",
     4: "setup-sql",
     5: "setup-mail",
     6: "setup-user"
@@ -210,9 +210,67 @@ app.post('/download-core-status', (req, res) => {
 });
 
 // PAGE: Setup Socket
-app.get('/setup-socket', (req, res) => {
+app.get('/setup-web', (req, res) => {
     if(step === 3) {
-        res.render('setup-socket', {step});
+        res.render('setup-web', {step});
+    } else {
+        res.redirect("/" + steps[step]);
+    }
+});
+
+app.post('/setup-web', (req, res) => {
+    if(step === 3) {
+        if(req.body.socketAddress && req.body.webPort && req.body.secretKey && req.body.socketPort && (req.body.webPort = parseInt(req.body.webPort)) && (req.body.socketPort = parseInt(req.body.socketPort))) {
+            if(req.body.webPort <= 1024 || req.body.webPort >= 49152 || req.body.socketPort <= 1024 || req.body.socketPort >= 49152 || req.body.webPort === req.body.socketPort) {
+                res.end(JSON.stringify({saved: false}));
+                throw new Error("invalid ports: ports must be between 1025 and 49152 and socket.io-port can not be equal to the webserver-port");
+            }
+            fs.rename(__dirname + "/../websuite/config.example.json", __dirname + "/../websuite/config.json", (err) => {
+                if(err) {
+                    res.end(JSON.stringify({saved: false}));
+                    throw err;
+                }
+
+                fs.readFile(__dirname + "/../websuite/config.json", (err, content) => {
+                    if(err) {
+                        res.end(JSON.stringify({saved: false}));
+                        throw err;
+                    }
+
+                    content = JSON.parse(content);
+
+                    content.server.webserver = req.body.webPort;
+                    content.server.socketio = req.body.socketPort;
+                    content.secretKey = req.body.secretKey;
+                    fs.writeFile(__dirname + "/../websuite/config.json", JSON.stringify(content, null, 2), (err) => {
+                        if(err) {
+                            res.end(JSON.stringify({saved: false}));
+                            throw err;
+                        }
+
+                        fs.writeFile(__dirname + "/../websuite/frontend/src/config/settings.json", JSON.stringify({connectionUrl: req.body.socketAddress}, null, 2), (err) => {
+                            if(err) {
+                                res.end(JSON.stringify({saved: false}));
+                                throw err;
+                            }
+
+                            fs.writeFile(__dirname + "/../websuite/cp/src/settings.json", JSON.stringify({connectionUrl: req.body.socketAddress}, null, 2), (err) => {
+                                if(err) {
+                                    res.end(JSON.stringify({saved: false}));
+                                    throw err;
+                                }
+
+                                step = 4;
+                                res.end(JSON.stringify({saved: true}));
+                            });
+                        });
+                    });
+                });
+            });
+        } else {
+            console.log("Required Input-fields not set");
+            res.end(JSON.stringify({saved: false}));
+        }
     } else {
         res.redirect("/" + steps[step]);
     }

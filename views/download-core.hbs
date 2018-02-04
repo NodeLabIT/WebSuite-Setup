@@ -114,7 +114,7 @@
                     $("#status").text("Aktueller Fortschritt: " + data.status + "%");
                     if(parseInt(data.status) === 100) {
                         clearInterval(interval);
-                        window.location.href = "/setup-socket";
+                        window.location.href = "/setup-web";
                     }
                 }
             },
