@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 if(process.versions.node.split(".")[0] < 4) {
     console.log("Node.js-Version not sufficient. Please update Node.js to Version 4 or newer");
